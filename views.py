@@ -95,7 +95,10 @@ class SuggestView(View):
             video_id = request.GET['url'][-11:]
             video = models.Video.objects.filter(video_id = video_id).first()
             if video is None:
-                title, channel, duration = get_video_details(video_id)
+                try:
+                    title, channel, duration = get_video_details(video_id)
+                except IndexError:
+                    return redirect('vote')
                 duration = parse_duration(duration)
                 if duration.total_seconds() > 10 * 60:
                     duration = datetime.timedelta(minutes = 10)
