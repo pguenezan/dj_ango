@@ -1,0 +1,29 @@
+{% include "front/base.html" %}
+
+<div id="cont">
+    <iframe src="{% url 'vote-inline' %}" style="width: 100%; height: 90%;"></iframe>
+</div>
+
+<script type="text/javascript">
+    var container = document.getElementById('cont');
+    var iframe2;
+
+    function resw()
+    {
+        iframe2 = document.createElement('iframe');
+        iframe2.src = "{% url 'vote-inline' %}";
+        window.setTimeout(apply, 500);
+        iframe2.style.display = 'none';
+        iframe2.style.width = '100%';
+        iframe2.style.height = '90%';
+        container.appendChild(iframe2);
+    }
+    
+    function apply()
+    {
+        container.removeChild(container.getElementsByTagName('iframe')[0]);
+        iframe2.style.display = 'inherit';
+        window.setTimeout(resw, 2000);
+    }
+    window.setTimeout(resw, 2000);
+</script>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html style="margin:0; padding:0; height:100%; overflow:hidden !important;">
+    <head>
+    </head>
+    <body>
+        <div id="player" style="position: absolute; min-height: 100vh; height: 100%; width: 100%; z-index: -999; top: 0px; left: 0px;"></div>
+
+        <script>
+          var seek_to = {{ video.seek_to|default:-1 }};
+          var video_id = "{{ video.video.video_id|default:"00000000000" }}";
+          var tag = document.createElement('script');
+          tag.src = "https://www.youtube.com/iframe_api";
+          var firstScriptTag = document.getElementsByTagName('script')[0];
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+          var player;
+          function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+              height: '390',
+              width: '640',
+              videoId: video_id,
+              playerVars: {
+                controls: 0,
+                disablekb: 1,
+                showinfo: 0,
+                autoplay: 0,
+                modestbranding: 1,
+                autohide: 1,
+              },
+              events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+              }
+            });
+          }
+          function onPlayerReady(event) {
+            seek();
+            event.target.playVideo();
+          }
+          function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED)
+            {
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("GET", "{% url 'info' %}");
+                oReq.send();
+            }
+            else if (event.data == YT.PlayerState.CUED)
+            {
+                event.target.playVideo();
+            }
+          }
+
+            function nextVideo(json)
+            {
+                seek_to = json.seek_to;
+                video_id = json.video_id;
+                player.cueVideoById(
+                {
+                    videoId: video_id,
+                });
+            }
+
+          function reqListener() {
+              var json = JSON.parse(this.responseText);
+              nextVideo(json);
+          }
+
+            window.setInterval(function()
+            {
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", pollListener);
+                oReq.open("GET", "{% url 'info' %}");
+                oReq.send();
+            }, 1000);
+
+            function pollListener()
+            {
+                var json = JSON.parse(this.responseText);
+                if (json.video_id != video_id)
+                {
+                    nextVideo(json);
+                    return;
+                }
+                if (Math.abs(json.seek_to - player.getCurrentTime()) > 5)
+                {
+                    seek_to = json.seek_to;
+                    seek();
+                }
+            }
+
+            function seek()
+            {  
+                if (seek_to == -1)
+                    return;
+                player.seekTo(seek_to, true);
+            }
+        </script>
+    </body>
+</html>

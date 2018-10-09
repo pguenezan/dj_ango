@@ -1,0 +1,33 @@
+<script>
+    function skip()
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "{% url 'skip' %}");
+        xmlHttp.send();
+    }
+
+    function check_p()
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "{% url 'presence' %}");
+        xmlHttp.send();
+    }
+</script>
+
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+    <a class="navbar-brand" href="{% url 'index' %}">{{ title }}</a>
+
+    <ul class="navbar-nav ml-auto">
+        <a class="nav-link" href="{% url 'chat' %}"><i class="fa fa-comment-dots"></i> Chat</a>
+        <a class="nav-link" href="{% url 'fullscreen' %}"><i class="fa fa-expand"></i> Fullscreen</a>
+        <a class="nav-link" href="{% url 'vote' %}"><i class="fa fa-thumbs-up"></i> Vote</a>
+        <a class="nav-link" href="{% url 'suggest' %}"><i class="fa fa-plus-circle"></i> Suggest</a>
+        <a class="nav-link" href="{% url 'log' %}"><i class="fa fa-file-signature"></i> Log</a>
+        <a class="nav-link" href="mailto:root@bfor.fr"><i class="fa fa-pencil-alt"></i> Feedback</a>
+        {% if request.user.is_staff %}
+            <a class="nav-link" onclick="skip()" href="#"><i class="fa fa-angle-double-right"></i> Skip</a>
+            <a class="nav-link" onclick="check_p()" href="#"><i class="fas fa-exclamation-triangle"></i> Check presence</a>
+        {% endif %}
+        <a class="nav-link" href="{% url 'admin:index' %}"><i class="fa fa-star"></i> Admin</a>
+    </ul>
+</nav>
